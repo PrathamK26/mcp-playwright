@@ -55,6 +55,85 @@ After modifying the `claude-desktop-config.json` file, you **must** completely c
 ⚠️ If you skip this step, the configuration changes **may not take effect**.  
 :::
 
+## Step 5: Global Headless Mode (Optional)
+
+You can configure the Playwright MCP server to run all browser operations in headless mode (without a visible UI). This is useful for server environments, CI/CD pipelines, or background automation.
+
+### Method 1: Command-Line Flag (Recommended)
+
+Add the `--headless` flag to the server arguments:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "--directory",
+        "/your-playwright-mcp-server-clone-directory",
+        "run",
+        "@executeautomation/playwright-mcp-server",
+        "--headless"
+      ]
+    }
+  }
+}
+```
+
+### Method 2: Environment Variable
+
+Use the `PLAYWRIGHT_HEADLESS` environment variable in your configuration:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "--directory",
+        "/your-playwright-mcp-server-clone-directory",
+        "run",
+        "@executeautomation/playwright-mcp-server"
+      ],
+      "env": {
+        "PLAYWRIGHT_HEADLESS": "true"
+      }
+    }
+  }
+}
+```
+
+### Configuration Details
+
+- **Default:** `false` (browser window is visible)
+- **Precedence:** Global headless mode takes absolute precedence over per-tool `headless` arguments
+- **Both methods work:** You can use either the CLI flag or environment variable
+
+**When to use headless mode:**
+- Running automation in server environments without a display
+- Improved performance for automated testing
+- Background tasks that don't require visual monitoring
+- Preventing accidental browser windows in production
+
+### Alternative: System-Level Environment Variables
+
+If your MCP client doesn't support the `env` property in configuration, you can set environment variables at the system level:
+
+**Windows (PowerShell):**
+```powershell
+$env:PLAYWRIGHT_HEADLESS = "true"
+```
+
+**Windows (Command Prompt):**
+```cmd
+set PLAYWRIGHT_HEADLESS=true
+```
+
+**macOS/Linux:**
+```bash
+export PLAYWRIGHT_HEADLESS=true
+```
+
 ## Reward
 If your setup is all correct, you should see Playwright MCP Server pointing your local machine source code
 

@@ -96,6 +96,57 @@ Here's the Claude Desktop configuration to use the Playwright server:
 }
 ```
 
+### Global Headless Mode
+
+The Playwright MCP server supports global headless mode, which makes all browser operations run without a visible UI. You can enable this using either a command-line flag or an environment variable.
+
+#### Method 1: Command-Line Flag (Recommended)
+
+Add the `--headless` flag to the server arguments:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server", "--headless"]
+    }
+  }
+}
+```
+
+#### Method 2: Environment Variable
+
+Use the `PLAYWRIGHT_HEADLESS` environment variable:
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"],
+      "env": {
+        "PLAYWRIGHT_HEADLESS": "true"
+      }
+    }
+  }
+}
+```
+
+**Configuration Details:**
+
+- **Default:** `false` (browser window is visible)
+- **Precedence:** Global headless mode (either method) takes absolute precedence over per-tool `headless` arguments
+- **Both methods work:** You can use either the CLI flag or environment variable, or both (CLI flag is checked first)
+
+**Use Cases:**
+- **Server/CI environments:** Run all browser operations without a display
+- **Performance:** Headless mode can be faster for automated tasks
+- **Security:** Prevent accidental headed browser launches in production
+- **Background automation:** Run browser tasks without visual interference
+
+**Note:** If your MCP client doesn't support the `env` configuration option, you can use the `--headless` flag or set the environment variable globally in your shell profile or system environment variables.
+
 ## Testing
 
 This project uses Jest for testing. The tests are located in the `src/__tests__` directory.

@@ -3,6 +3,7 @@ import { chromium, firefox, webkit, request } from 'playwright';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { BROWSER_TOOLS, API_TOOLS } from './tools.js';
 import type { ToolContext } from './tools/common/types.js';
+import { GLOBAL_HEADLESS_MODE } from './config.js';
 import { ActionRecorder } from './tools/codegen/recorder.js';
 import { 
   startCodegenSession,
@@ -183,7 +184,7 @@ export async function ensureBrowser(browserSettings?: BrowserSettings) {
         resetBrowserState();
       }
       
-      console.error(`Launching new ${browserType} browser instance...`);
+      console.error(`Launching new ${browserType} browser instance${headless ? ' (headless mode)' : ''}...`);
       
       // Use the appropriate browser engine
       let browserInstance;
@@ -258,6 +259,8 @@ export async function ensureBrowser(browserSettings?: BrowserSettings) {
     
     // Try one more time from scratch
     const { viewport, userAgent, headless = false, browserType = 'chromium' } = browserSettings ?? {};
+    
+    console.error(`Retrying browser launch${headless ? ' (headless mode)' : ''}...`);
     
     // Use the appropriate browser engine
     let browserInstance;
@@ -426,13 +429,16 @@ export async function handleToolCall(
   
   // Set up browser if needed
   if (BROWSER_TOOLS.includes(name)) {
+    // Global headless mode (from CLI flag or environment variable) takes absolute precedence over per-tool arguments
+    const headless = GLOBAL_HEADLESS_MODE || args.headless || false;
+    
     const browserSettings = {
       viewport: {
         width: args.width,
         height: args.height
       },
       userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined,
-      headless: args.headless,
+      headless: headless,
       browserType: args.browserType || 'chromium'
     };
     

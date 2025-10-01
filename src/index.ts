@@ -4,6 +4,13 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createToolDefinitions } from "./tools.js";
 import { setupRequestHandlers } from "./requestHandler.js";
+import { GLOBAL_HEADLESS_MODE, CLI_HEADLESS_MODE, ENV_HEADLESS_MODE } from "./config.js";
+
+// Log the configuration on startup
+if (GLOBAL_HEADLESS_MODE) {
+  const source = CLI_HEADLESS_MODE ? '--headless flag' : 'PLAYWRIGHT_HEADLESS environment variable';
+  console.error(`Playwright MCP Server starting in headless mode (${source})`);
+}
 
 async function runServer() {
   const server = new Server(
