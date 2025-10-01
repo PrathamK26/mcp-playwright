@@ -1,5 +1,5 @@
 import { ApiToolBase } from './base.js';
-import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types.js';
+import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse, truncateText, MAX_RESPONSE_LENGTH } from '../common/types.js';
 
 /**
  * Tool for making GET requests
@@ -19,10 +19,13 @@ export class GetRequestTool extends ApiToolBase {
         responseText = "Unable to get response text";
       }
       
+      // Truncate response to fit within character limit
+      const truncatedResponse = truncateText(responseText, MAX_RESPONSE_LENGTH - 200); // Reserve space for headers
+      
       return createSuccessResponse([
         `GET request to ${args.url}`,
         `Status: ${response.status()} ${response.statusText()}`,
-        `Response: ${responseText.substring(0, 1000)}${responseText.length > 1000 ? '...' : ''}`
+        `Response: ${truncatedResponse}`
       ]);
     });
   }
@@ -63,10 +66,13 @@ export class PostRequestTool extends ApiToolBase {
         responseText = "Unable to get response text";
       }
       
+      // Truncate response to fit within character limit
+      const truncatedResponse = truncateText(responseText, MAX_RESPONSE_LENGTH - 200); // Reserve space for headers
+      
       return createSuccessResponse([
         `POST request to ${args.url}`,
         `Status: ${response.status()} ${response.statusText()}`,
-        `Response: ${responseText.substring(0, 1000)}${responseText.length > 1000 ? '...' : ''}`
+        `Response: ${truncatedResponse}`
       ]);
     });
   }
@@ -102,10 +108,13 @@ export class PutRequestTool extends ApiToolBase {
         responseText = "Unable to get response text";
       }
       
+      // Truncate response to fit within character limit
+      const truncatedResponse = truncateText(responseText, MAX_RESPONSE_LENGTH - 200); // Reserve space for headers
+      
       return createSuccessResponse([
         `PUT request to ${args.url}`,
         `Status: ${response.status()} ${response.statusText()}`,
-        `Response: ${responseText.substring(0, 1000)}${responseText.length > 1000 ? '...' : ''}`
+        `Response: ${truncatedResponse}`
       ]);
     });
   }
@@ -141,10 +150,13 @@ export class PatchRequestTool extends ApiToolBase {
         responseText = "Unable to get response text";
       }
       
+      // Truncate response to fit within character limit
+      const truncatedResponse = truncateText(responseText, MAX_RESPONSE_LENGTH - 200); // Reserve space for headers
+      
       return createSuccessResponse([
         `PATCH request to ${args.url}`,
         `Status: ${response.status()} ${response.statusText()}`,
-        `Response: ${responseText.substring(0, 1000)}${responseText.length > 1000 ? '...' : ''}`
+        `Response: ${truncatedResponse}`
       ]);
     });
   }
@@ -168,10 +180,13 @@ export class DeleteRequestTool extends ApiToolBase {
         responseText = "Unable to get response text";
       }
       
+      // Truncate response to fit within character limit
+      const truncatedResponse = truncateText(responseText, MAX_RESPONSE_LENGTH - 200); // Reserve space for headers
+      
       return createSuccessResponse([
         `DELETE request to ${args.url}`,
         `Status: ${response.status()} ${response.statusText()}`,
-        `Response: ${responseText.substring(0, 1000)}${responseText.length > 1000 ? '...' : ''}`
+        `Response: ${truncatedResponse}`
       ]);
     });
   }

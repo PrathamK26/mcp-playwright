@@ -20,12 +20,31 @@ export interface ToolHandler {
   execute(args: any, context: ToolContext): Promise<ToolResponse>;
 }
 
+// Maximum character limit for responses - THIS IS AN ABSOLUTE HARD LIMIT
+export const MAX_RESPONSE_LENGTH = 20000;
+
+/**
+ * Truncates text to the maximum response length
+ * @param text The text to truncate
+ * @param maxLength Maximum length (defaults to MAX_RESPONSE_LENGTH, but will never exceed it)
+ * @returns Truncated text with indicator if truncated
+ */
+export function truncateText(text: string, maxLength: number = MAX_RESPONSE_LENGTH): string {
+  // Enforce absolute maximum - user can request lower, but never higher
+  const effectiveMaxLength = Math.min(maxLength, MAX_RESPONSE_LENGTH);
+  
+  if (text.length <= effectiveMaxLength) {
+    return text;
+  }
+  return text.slice(0, effectiveMaxLength) + '\n[Output truncated due to size limits - exceeded 20000 characters]';
+}
+
 // Helper functions for creating responses
 export function createErrorResponse(message: string): ToolResponse {
   return {
     content: [{
       type: "text",
-      text: message
+      text: truncateText(message)
     }],
     isError: true
   };
@@ -33,11 +52,12 @@ export function createErrorResponse(message: string): ToolResponse {
 
 export function createSuccessResponse(message: string | string[]): ToolResponse {
   const messages = Array.isArray(message) ? message : [message];
+  const combinedText = messages.join('\n');
   return {
-    content: messages.map(msg => ({
+    content: [{
       type: "text",
-      text: msg
-    })),
+      text: truncateText(combinedText)
+    }],
     isError: false
   };
 } 

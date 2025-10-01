@@ -1,5 +1,5 @@
 import { BrowserToolBase } from './base.js';
-import { ToolContext, ToolResponse, createSuccessResponse } from '../common/types.js';
+import { ToolContext, ToolResponse, createSuccessResponse, truncateText, MAX_RESPONSE_LENGTH } from '../common/types.js';
 
 /**
  * Tool for retrieving and filtering console logs from the browser
@@ -50,10 +50,17 @@ export class ConsoleLogsTool extends BrowserToolBase {
     if (logs.length === 0) {
       return createSuccessResponse("No console logs matching the criteria");
     } else {
-      return createSuccessResponse([
-        `Retrieved ${logs.length} console log(s):`,
-        ...logs
-      ]);
+      // Join logs and truncate if necessary
+      const logsText = [`Retrieved ${logs.length} console log(s):`, ...logs].join('\n');
+      const truncatedLogs = truncateText(logsText, MAX_RESPONSE_LENGTH);
+      
+      return {
+        content: [{
+          type: "text",
+          text: truncatedLogs
+        }],
+        isError: false
+      };
     }
   }
 

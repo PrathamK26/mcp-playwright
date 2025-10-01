@@ -1,7 +1,7 @@
 import type { Response } from 'playwright';
 import { BrowserToolBase } from './base.js';
 import type { ToolContext, ToolResponse } from '../common/types.js';
-import { createSuccessResponse, createErrorResponse } from '../common/types.js';
+import { createSuccessResponse, createErrorResponse, truncateText, MAX_RESPONSE_LENGTH } from '../common/types.js';
 
 const responsePromises = new Map<string, Promise<Response>>();
 
@@ -69,11 +69,15 @@ export class AssertResponseTool extends BrowserToolBase {
           }
         }
 
+        // Truncate the response body to fit within character limit
+        const bodyStr = JSON.stringify(body, null, 2);
+        const truncatedBody = truncateText(bodyStr, MAX_RESPONSE_LENGTH - 200); // Reserve space for headers
+        
         const messages = [
           `Response assertion for ID ${args.id} successful`,
           `URL: ${response.url()}`,
           `Status: ${response.status()}`,
-          `Body: ${JSON.stringify(body, null, 2)}`
+          `Body: ${truncatedBody}`
         ];
         return createSuccessResponse(messages.join('\n'));
       } catch (error) {

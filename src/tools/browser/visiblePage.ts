@@ -1,5 +1,5 @@
 import { resetBrowserState } from "../../toolHandler.js";
-import { ToolContext, ToolResponse, createErrorResponse, createSuccessResponse } from "../common/types.js";
+import { ToolContext, ToolResponse, createErrorResponse, createSuccessResponse, truncateText, MAX_RESPONSE_LENGTH } from "../common/types.js";
 import { BrowserToolBase } from "./base.js";
 
 /**
@@ -50,15 +50,12 @@ export class VisibleTextTool extends BrowserToolBase {
           }
           return text.trim();
         });
-        // Truncate logic
-        const maxLength = typeof args.maxLength === 'number' ? args.maxLength : 20000;
-        let output = visibleText;
-        let truncated = false;
-        if (output.length > maxLength) {
-          output = output.slice(0, maxLength) + '\n[Output truncated due to size limits]';
-          truncated = true;
-        }
-        return createSuccessResponse(`Visible text content:\n${output}`);
+        // Truncate logic - respect user's maxLength but cap at MAX_RESPONSE_LENGTH
+        // Reserve space for the "Visible text content:\n" prefix (approximately 25 characters)
+        const userMaxLength = typeof args.maxLength === 'number' ? args.maxLength : MAX_RESPONSE_LENGTH;
+        const maxLength = Math.min(userMaxLength, MAX_RESPONSE_LENGTH - 50); // Reserve 50 chars for prefix and truncation message
+        const truncatedText = truncateText(visibleText, maxLength);
+        return createSuccessResponse(`Visible text content:\n${truncatedText}`);
       } catch (error) {
         return createErrorResponse(`Failed to get visible text content: ${(error as Error).message}`);
       }
@@ -180,13 +177,16 @@ export class VisibleHtmlTool extends BrowserToolBase {
           );
         }
 
-        // Truncate logic
-        const maxLength = typeof args.maxLength === 'number' ? args.maxLength : 20000;
-        let output = htmlContent;
-        if (output.length > maxLength) {
-          output = output.slice(0, maxLength) + '\n<!-- Output truncated due to size limits -->';
-        }
-        return createSuccessResponse(`HTML content:\n${output}`);
+        // Truncate logic - respect user's maxLength but cap at MAX_RESPONSE_LENGTH
+        // Reserve space for the "HTML content:\n" prefix (approximately 15 characters)
+        const userMaxLength = typeof args.maxLength === 'number' ? args.maxLength : MAX_RESPONSE_LENGTH;
+        const maxLength = Math.min(userMaxLength, MAX_RESPONSE_LENGTH - 50); // Reserve 50 chars for prefix and truncation message
+        
+        const truncatedHtml = htmlContent.length > maxLength 
+          ? htmlContent.slice(0, maxLength) + '\n<!-- Output truncated due to size limits - exceeded 20000 characters -->'
+          : htmlContent;
+        
+        return createSuccessResponse(`HTML content:\n${truncatedHtml}`);
       } catch (error) {
         return createErrorResponse(`Failed to get visible HTML content: ${(error as Error).message}`);
       }

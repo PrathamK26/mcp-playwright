@@ -1,5 +1,5 @@
 import { BrowserToolBase } from './base.js';
-import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse } from '../common/types.js';
+import { ToolContext, ToolResponse, createSuccessResponse, createErrorResponse, truncateText, MAX_RESPONSE_LENGTH } from '../common/types.js';
 import { setGlobalPage } from '../../toolHandler.js';
 /**
  * Tool for clicking elements on the page
@@ -168,11 +168,14 @@ export class EvaluateTool extends BrowserToolBase {
         resultStr = String(result);
       }
       
+      // Truncate result if it exceeds the limit
+      const truncatedResult = truncateText(resultStr, MAX_RESPONSE_LENGTH - 200); // Reserve space for headers
+      
       return createSuccessResponse([
         `Executed JavaScript:`,
         `${args.script}`,
         `Result:`,
-        `${resultStr}`
+        `${truncatedResult}`
       ]);
     });
   }
