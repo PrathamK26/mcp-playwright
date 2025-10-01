@@ -45,9 +45,9 @@ describe('ConsoleLogsTool', () => {
 
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toContain('Retrieved 1 console log(s)');
-    expect(result.content[1].text).toContain('Test error message');
-    expect(result.content[1].text).not.toContain('Test log message');
-    expect(result.content[1].text).not.toContain('Test warning message');
+    expect(result.content[0].text).toContain('Test error message');
+    expect(result.content[0].text).not.toContain('Test log message');
+    expect(result.content[0].text).not.toContain('Test warning message');
   });
 
   test('should retrieve console logs with search filter', async () => {
@@ -63,9 +63,9 @@ describe('ConsoleLogsTool', () => {
 
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toContain('Retrieved 1 console log(s)');
-    expect(result.content[1].text).toContain('Test error with [special] characters');
-    expect(result.content[1].text).not.toContain('Test log message');
-    expect(result.content[1].text).not.toContain('Another warning message');
+    expect(result.content[0].text).toContain('Test error with [special] characters');
+    expect(result.content[0].text).not.toContain('Test log message');
+    expect(result.content[0].text).not.toContain('Another warning message');
   });
 
   test('should retrieve console logs with limit', async () => {
@@ -82,9 +82,8 @@ describe('ConsoleLogsTool', () => {
     expect(result.isError).toBe(false);
     expect(result.content[0].text).toContain('Retrieved 5 console log(s)');
     
-    // The actual implementation might only show the first log in the content
-    // Just verify that at least one log message is present
-    const logText = result.content[1].text as string;
+    // All logs are in a single content item, verify log messages are present
+    const logText = result.content[0].text as string;
     expect(logText).toContain('Test log message');
   });
 
