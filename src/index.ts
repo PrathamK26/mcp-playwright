@@ -4,12 +4,19 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createToolDefinitions } from "./tools.js";
 import { setupRequestHandlers } from "./requestHandler.js";
-import { GLOBAL_HEADLESS_MODE, CLI_HEADLESS_MODE, ENV_HEADLESS_MODE } from "./config.js";
+import { GLOBAL_HEADLESS_MODE, CLI_HEADLESS_MODE, ENV_HEADLESS_MODE, GLOBAL_PROXY_CONFIG, CLI_PROXY_MODE, ENV_PROXY_MODE } from "./config.js";
 
 // Log the configuration on startup
 if (GLOBAL_HEADLESS_MODE) {
   const source = CLI_HEADLESS_MODE ? '--headless flag' : 'PLAYWRIGHT_HEADLESS environment variable';
   console.error(`Playwright MCP Server starting in headless mode (${source})`);
+}
+
+if (GLOBAL_PROXY_CONFIG) {
+  const source = CLI_PROXY_MODE ? '--proxy flag' : 'PLAYWRIGHT_PROXY environment variable';
+  const authInfo = GLOBAL_PROXY_CONFIG.username ? ' (authenticated)' : '';
+  const bypassInfo = GLOBAL_PROXY_CONFIG.bypass ? ` (bypass: ${GLOBAL_PROXY_CONFIG.bypass})` : '';
+  console.error(`Playwright MCP Server starting with proxy: ${GLOBAL_PROXY_CONFIG.server}${authInfo}${bypassInfo} (${source})`);
 }
 
 async function runServer() {

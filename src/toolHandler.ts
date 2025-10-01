@@ -3,7 +3,7 @@ import { chromium, firefox, webkit, request } from 'playwright';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { BROWSER_TOOLS, API_TOOLS } from './tools.js';
 import type { ToolContext } from './tools/common/types.js';
-import { GLOBAL_HEADLESS_MODE } from './config.js';
+import { GLOBAL_HEADLESS_MODE, GLOBAL_PROXY_CONFIG } from './config.js';
 import { ActionRecorder } from './tools/codegen/recorder.js';
 import { 
   startCodegenSession,
@@ -111,6 +111,12 @@ interface BrowserSettings {
   userAgent?: string;
   headless?: boolean;
   browserType?: 'chromium' | 'firefox' | 'webkit';
+  proxy?: {
+    server: string;
+    bypass?: string;
+    username?: string;
+    password?: string;
+  };
 }
 
 async function registerConsoleMessage(page) {
@@ -203,10 +209,16 @@ export async function ensureBrowser(browserSettings?: BrowserSettings) {
       
       const executablePath = process.env.CHROME_EXECUTABLE_PATH;
 
-      browser = await browserInstance.launch({
+      const launchOptions: any = {
         headless,
         executablePath: executablePath
-      });
+      };
+
+      if (browserSettings?.proxy) {
+        launchOptions.proxy = browserSettings.proxy;
+      }
+
+      browser = await browserInstance.launch(launchOptions);
       
       currentBrowserType = browserType;
 
@@ -277,7 +289,15 @@ export async function ensureBrowser(browserSettings?: BrowserSettings) {
         break;
     }
     
-    browser = await browserInstance.launch({ headless });
+    const launchOptions: any = {
+      headless
+    };
+
+    if (browserSettings?.proxy) {
+      launchOptions.proxy = browserSettings.proxy;
+    }
+
+    browser = await browserInstance.launch(launchOptions);
     currentBrowserType = browserType;
     
     browser.on('disconnected', () => {
@@ -432,6 +452,9 @@ export async function handleToolCall(
     // Global headless mode (from CLI flag or environment variable) takes absolute precedence over per-tool arguments
     const headless = GLOBAL_HEADLESS_MODE || args.headless || false;
     
+    // Global proxy config takes precedence over per-tool arguments
+    const proxyConfig = GLOBAL_PROXY_CONFIG || args.proxy || undefined;
+    
     const browserSettings = {
       viewport: {
         width: args.width,
@@ -439,7 +462,8 @@ export async function handleToolCall(
       },
       userAgent: name === "playwright_custom_user_agent" ? args.userAgent : undefined,
       headless: headless,
-      browserType: args.browserType || 'chromium'
+      browserType: args.browserType || 'chromium',
+      ...(proxyConfig && { proxy: proxyConfig })
     };
     
     try {

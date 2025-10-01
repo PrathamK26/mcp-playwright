@@ -87,7 +87,18 @@ export function createToolDefinitions() {
           height: { type: "number", description: "Viewport height in pixels (default: 720)" },
           timeout: { type: "number", description: "Navigation timeout in milliseconds" },
           waitUntil: { type: "string", description: "Navigation wait condition" },
-          headless: { type: "boolean", description: "Run browser in headless mode (default: false)" }
+          headless: { type: "boolean", description: "Run browser in headless mode (default: false)" },
+          proxy: {
+            type: "object",
+            description: "Proxy configuration (global proxy takes precedence). Example: {\"server\": \"http://proxy.com:8080\"}",
+            properties: {
+              server: { type: "string", description: "Proxy server URL" },
+              bypass: { type: "string", description: "Bypass domains (comma-separated)" },
+              username: { type: "string", description: "Auth username" },
+              password: { type: "string", description: "Auth password" }
+            },
+            required: ["server"]
+          }
         },
         required: ["url"],
       },

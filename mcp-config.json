@@ -2,7 +2,44 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@executeautomation/playwright-mcp-server"]
+      "args": ["-y", "@executeautomation/playwright-mcp-server","--headless"]
+    },
+    "playwright-with-proxy-cli": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server",
+        "--headless",
+        "--proxy",
+        "{\"server\": \"http://proxy.com:8080\"}"
+      ]
+    },
+    "playwright-with-proxy-auth": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server",
+        "--headless",
+        "--proxy",
+        "{\"server\": \"http://proxy.com:8080\", \"username\": \"user\", \"password\": \"pass\"}"
+      ]
+    },
+    "playwright-with-proxy-bypass": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server",
+        "--headless",
+        "--proxy",
+        "{\"server\": \"http://proxy.com:8080\", \"bypass\": \"*.internal.com,localhost\"}"
+      ]
+    },
+    "playwright-with-proxy-env": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server", "--headless"],
+      "env": {
+        "PLAYWRIGHT_PROXY": "{\"server\": \"http://proxy.com:8080\", \"username\": \"user\", \"password\": \"pass\"}"
+      }
     }
   }
 }
